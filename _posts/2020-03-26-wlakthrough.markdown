@@ -15,7 +15,22 @@ One of the first steps is to scan the network for open ports and look for vulner
 netdiscover -i eth1 -r 10.10.10.0/24
 {% endhighlight %}
 
-![screenshot]({{ '/assets/img/posts/netdiscover.png' | relative_url }})
+{% highlight console %}
+
+ Currently scanning: Finished!   |   Screen View: Unique Hosts                       
+                                                                                     
+ 4 Captured ARP Req/Rep packets, from 4 hosts.   Total size: 240                     
+ _____________________________________________________________________________
+   IP            At MAC Address     Count     Len  MAC Vendor / Hostname      
+ -----------------------------------------------------------------------------
+ 10.10.10.1      0a:00:27:00:00:05      1      60  Unknown vendor                    
+ 10.10.10.100    08:00:27:72:2f:90      1      60  PCS Systemtechnik GmbH            
+ 10.10.10.104    08:00:27:c5:db:a3      1      60  PCS Systemtechnik GmbH            
+ 10.10.10.105    08:00:27:5b:29:29      1      60  PCS Systemtechnik GmbH            
+
+{% endhighlight %}
+
+[comment]: <> ( // ![screenshot]({{ '/assets/img/posts/netdiscover.png' | relative_url }}) )
 
 ### Using Nmap
 
@@ -31,7 +46,35 @@ The option
 nmap -A 10.10.10.104
 {% endhighlight %}
 
-![screenshot]({{ '/assets/img/posts/nmap.png' | relative_url }})
+{% highlight console %}
+Starting Nmap 7.80 ( https://nmap.org ) at 2020-03-31 13:46 EDT
+Nmap scan report for vtcsec (10.10.10.104)
+Host is up (0.00065s latency).
+Not shown: 997 closed ports
+PORT   STATE SERVICE VERSION
+21/tcp open  ftp     ProFTPD 1.3.3c
+22/tcp open  ssh     OpenSSH 7.2p2 Ubuntu 4ubuntu2.2 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   2048 d6:01:90:39:2d:8f:46:fb:03:86:73:b3:3c:54:7e:54 (RSA)
+|   256 f1:f3:c0:dd:ba:a4:85:f7:13:9a:da:3a:bb:4d:93:04 (ECDSA)
+|_  256 12:e2:98:d2:a3:e7:36:4f:be:6b:ce:36:6b:7e:0d:9e (ED25519)
+80/tcp open  http    Apache httpd 2.4.18 ((Ubuntu))
+|_http-server-header: Apache/2.4.18 (Ubuntu)
+|_http-title: Site doesn't have a title (text/html).
+MAC Address: 08:00:27:C5:DB:A3 (Oracle VirtualBox virtual NIC)
+Device type: general purpose
+Running: Linux 3.X|4.X
+OS CPE: cpe:/o:linux:linux_kernel:3 cpe:/o:linux:linux_kernel:4
+OS details: Linux 3.2 - 4.9
+Network Distance: 1 hop
+Service Info: OSs: Unix, Linux; CPE: cpe:/o:linux:linux_kernel
+
+TRACEROUTE
+HOP RTT     ADDRESS
+1   0.65 ms vtcsec (10.10.10.104)
+{% endhighlight %}
+
+[comment]: <> ( ![screenshot]({{ '/assets/img/posts/nmap.png' | relative_url }}) )
 
 ## Results of Scanning
 
