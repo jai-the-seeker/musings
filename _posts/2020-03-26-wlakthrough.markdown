@@ -1,5 +1,5 @@
 ---
-layout: posts
+layout: post
 title:  "Walkthrought Basic Pentesting"
 date:   2020-03-26 23:20:58 +0530
 tags: CTF update
@@ -137,12 +137,13 @@ root
 
 As a first step we need to enumerate the directories of the website. For this we
 will use `DirBuster`. This tool is developed by OWASP Foundation to brute force
-directories and files names on web/application servers.
+directories and file names on web/application servers.
 This tool is also available in Kali Linux.
 
 In order to use this tool we need to provide the base path of the website and the
-dictionary. We will be using the pre-installed dictionary with Kali Linux.
-The path of dictionary list is
+wordlist. This wordlist will be used for all the combinations to enumerate the directories. 
+We will be using the pre-installed wordlist with Kali Linux.
+The path of wordlist list in Kali Linux is
 
 `/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt`
 
@@ -150,7 +151,8 @@ The output of the tool shows that there is an existing `/secret` directory which
 
 Once we land on the home page, we find that it is a wordpress site but the
 layout is not properly formatted. It happens because the webpages are not able
-to resolve the links. In order to overcome this challenge, we need to make an entry
+to resolve the links for the stylesheets. In order to overcome this challenge, we need to reslove
+the domain name with the IPaddress. For this we will make an entry
 into the hosts file of our Kali PC.
 
 {% highlight console %}
@@ -158,9 +160,9 @@ nano /etc/hosts
 10.10.10.104  vtcsec
 {% endhighlight %}
 
-There is a beautiful tool `wpscan` for scanning vulnerabilities in wordpress sites
-and can be downloaded from [wpscan.org](https://wpscan.org/). The tool comes pre-installed
-in Kali Linux.
+The next step would be to scan for vulnerabilities in wordpress site. This can be done by using
+`wpscan`. It can be downloaded from [wpscan.org](https://wpscan.org/). This tool also comes pre-installed
+on Kali Linux.
 
 Now, if can somehow exploit the wordpress site to upload our webshell, we can
 get acess to the system. One of the simpliest ways is to find the user accounts
