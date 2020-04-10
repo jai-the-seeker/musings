@@ -7,4 +7,38 @@ tags: docker, "web explotation", "infrastructure"
 ---
 
 ## After Fresh Installation
+Once we have installed all the CE-edition of docker and docker-compose from the docker website, we have following with us:
+{% highlight console %}
+{% endhighlight %}
 
+{% highlight console %}
+$ docker image ls
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+hello-world         latest              fce289e99eb9        15 months ago       1.84kB
+$ docker container ls
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+$ docker network ls
+NETWORK ID          NAME                DRIVER              SCOPE
+efc1e1ca6409        bridge              bridge              local
+34f81bd2e623        host                host                local
+94d2f826785d        none                null                local
+{% endhighlight %}
+
+After running the `docker-compose up` command, the sate of our docker conatiners, networks is as follows:
+
+{% highlight console %}
+$ docker container ls --format "{{.ID}}: {{.Names}}: {{.Ports}}"
+1f3cb046fe8c: app-web-php74: 0.0.0.0:5000->80/tcp
+c715238c051c: app-phpmyadmin: 0.0.0.0:5001->80/tcp
+b66a4f79e291: app-db-mysql: 3306/tcp, 33060/tcp
+{% endhighlight %}
+
+{% highlight console %}
+$ docker network ls 
+NETWORK ID          NAME                          DRIVER              SCOPE
+5e9b89160c36        app-machine_app-network       bridge              local
+efc1e1ca6409        bridge                        bridge              local
+a2e9779a2337        docker-files_server-network   bridge              local
+34f81bd2e623        host                          host                local
+94d2f826785d        none                          null                local
+{% endhighlight %}
