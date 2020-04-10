@@ -12,12 +12,12 @@ Once we have installed all the CE-edition of docker and docker-compose from the 
 {% endhighlight %}
 
 {% highlight console %}
-# docker image ls
+$ docker image ls
 REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
 hello-world         latest              fce289e99eb9        15 months ago       1.84kB
-# docker container ls
+$ docker container ls
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
-# docker network ls
+$ docker network ls
 NETWORK ID          NAME                DRIVER              SCOPE
 efc1e1ca6409        bridge              bridge              local
 34f81bd2e623        host                host                local
@@ -27,14 +27,14 @@ efc1e1ca6409        bridge              bridge              local
 After running the `docker-compose up` command, the sate of our docker conatiners, networks is as follows:
 
 {% highlight console %}
-# docker container ls --format "{{.ID}}: {{.Names}}: {{.Ports}}"
+$ docker container ls --format "{{.ID}}: {{.Names}}: {{.Ports}}"
 1f3cb046fe8c: app-web-php74: 0.0.0.0:5000->80/tcp
 c715238c051c: app-phpmyadmin: 0.0.0.0:5001->80/tcp
 b66a4f79e291: app-db-mysql: 3306/tcp, 33060/tcp
 {% endhighlight %}
 
 {% highlight console %}
-# docker network ls 
+$ docker network ls 
 NETWORK ID          NAME                          DRIVER              SCOPE
 5e9b89160c36        app-machine_app-network       bridge              local
 efc1e1ca6409        bridge                        bridge              local
@@ -44,7 +44,7 @@ a2e9779a2337        docker-files_server-network   bridge              local
 {% endhighlight %}
 
 {% highlight console %}
-# docker network inspect app-machine_app-network 
+$ docker network inspect app-machine_app-network 
 ...
         "Containers": {
             "1f3cb046fe8cd8a1c6581d8c582d1acc6854b6af5badf17f6ed395a4f4acd934": {
@@ -72,7 +72,7 @@ a2e9779a2337        docker-files_server-network   bridge              local
 ...
 {% endhighlight %}
 
-After our containers are up, let us check the connectivity of mysql. Create [check-conn.php]() file and place it in appropriate location. Now, we can visit this page to verify our connectivity with the database.
+After our containers are up, let us check the connectivity of mysql. Create [check-conn.php](https://github.com/jai-the-seeker/web-security/blob/master/infrastructure/check-conn.php) file and place it in appropriate location. Now, we can visit this page to verify our connectivity with the database.
 
 
 
