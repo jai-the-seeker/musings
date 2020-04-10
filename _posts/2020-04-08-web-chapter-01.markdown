@@ -8,8 +8,6 @@ tags: docker, "web explotation", "infrastructure"
 
 ## After Fresh Installation
 Once we have installed all the CE-edition of docker and docker-compose from the docker website, we have following with us:
-{% highlight console %}
-{% endhighlight %}
 
 {% highlight console %}
 $ docker image ls
