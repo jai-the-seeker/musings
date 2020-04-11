@@ -24,8 +24,10 @@ efc1e1ca6409        bridge              bridge              local
 94d2f826785d        none                null                local
 {% endhighlight %}
 
-After running the `docker-compose up` command, the sate of our docker conatiners, networks is as follows:
+## Creating Dockerfile and Docker-Compose.yml
+The Dockerfile caters for `pdo_mysql` extensions. The Dockerfile used in project is [here](https://github.com/jai-the-seeker/web-security/blob/master/infrastructure/app-machine/php/Dockerfile) 
 
+After running the `docker-compose up` command, the sate of our docker conatiners, networks is as follows:
 
 {% highlight console %}
 {% raw %}$ docker container ls --format "{{.ID}}: {{.Names}}: {{.Ports}}" {% endraw %}

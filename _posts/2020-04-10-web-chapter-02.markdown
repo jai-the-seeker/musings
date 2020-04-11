@@ -1,0 +1,90 @@
+---
+layout: post
+title:  "Chapter 02 : Sql Injection"
+date:   2020-04-10 23:20:58 +0530
+categories : [web explotation]
+tags: [docker, web explotation, infrastructure]
+---
+
+## The Database Setup
+Let us first enter the running mysql docker container, to see the initial setup of database
+
+{% highlight console %}
+{% endhighlight %}
+
+{% highlight console %}
+$ docker container exec -it app-db-mysql bash
+
+$ mysql -u devuser -p
+mysql> use myapp_db;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> show tables;
++--------------------+
+| Tables_in_myapp_db |
++--------------------+
+| posts              |
+| users              |
++--------------------+
+2 rows in set (0.01 sec)
+
+mysql> describe users;
++-------+--------------+------+-----+---------+----------------+
+| Field | Type         | Null | Key | Default | Extra          |
++-------+--------------+------+-----+---------+----------------+
+| id    | int          | NO   | PRI | NULL    | auto_increment |
+| name  | varchar(200) | NO   |     | NULL    |                |
+| email | varchar(200) | NO   |     | NULL    |                |
++-------+--------------+------+-----+---------+----------------+
+3 rows in set (0.00 sec)
+
+mysql> describe posts;
++-------+--------------+------+-----+---------+----------------+
+| Field | Type         | Null | Key | Default | Extra          |
++-------+--------------+------+-----+---------+----------------+
+| id    | int          | NO   | PRI | NULL    | auto_increment |
+| title | varchar(200) | NO   |     | NULL    |                |
+| body  | varchar(200) | NO   |     | NULL    |                |
++-------+--------------+------+-----+---------+----------------+
+3 rows in set (0.00 sec)
+
+{% endhighlight %}
+
+After, completing creation of our database, lets create our simple web app. This app takes the input as email address and verifies whether it is a valid email or not. The app code is placed [here]().
+
+The web-app does not validate the user input and simply pushed the data supplied by the user to the database.
+Let us now input a malicious code in place of the email address.
+
+{% highlight console %}
+'; DROP TABLE posts;--
+{% endhighlight %}
+
+After, we submit the form we find that the table `posts` has been dropped from the database.
+{% highlight console %}
+mysql> show tables;
++--------------------+
+| Tables_in_myapp_db |
++--------------------+
+| users              |
++--------------------+
+1 row in set (0.00 sec)
+{% endhighlight %}
+
+## Let us tackle the Vulnerability
+
+What causes the vulnerability. If we analyse the code, we can see that the user inputs are directly passed on to the database
+{% highlight php %}
+$email = $_POST['email'];
+    $query = $conn->query("SELECT * from users WHERE email='$email'");
+{% endhighlight %}
+
+OK, now what can we do to prevent the same. If we can somehow validate the user data before passing to the database, our job is done. We, can make use of `prepared` statements for our purpose. The `safe.php` code can be found [here]().
+
+{% highlight php %}
+$query = $conn->prepare("SELECT * from users WHERE email= :email");
+    $query->execute(array(':email' => $email));
+{% endhighlight %}
+
+
