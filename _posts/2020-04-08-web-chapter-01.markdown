@@ -2,8 +2,8 @@
 layout: post
 title:  "Chapter 01 : Setting up Infrastructure"
 date:   2020-04-08 23:20:58 +0530
-categories : [web explotation]
-tags: [docker, web explotation, infrastructure]
+categories : [web exploitation]
+tags: [docker, web exploitation, infrastructure]
 ---
 
 ## After Fresh Installation

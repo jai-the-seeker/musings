@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Walkthrought Basic Pentesting"
+title:  "Walkthrough Basic Pentesting"
 date:   2020-03-26 23:20:58 +0530
 tags: CTF update
 ---

