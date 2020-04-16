@@ -6,18 +6,14 @@ categories : [CTF]
 tags: [linux, infrastructure]
 ---
 
-# Table of Content
-* [Linux Capabilities](#linux-capabilities)
-* [`tar`](#all-about-tar)
-* [`-` in filename](#dashed-filename)
-* [`--` and `tar`](#double-dash-tar)
-
-## Linux Capabilities
+{% include toc %}
+# Linux Capabilities
 
 Refs:
 
 * <https://www.kernel.org/doc/ols/2008/ols2008v1-pages-163-172.pdf>
 * <https://www.andreasch.com/2018/01/13/capabilities/>
+* [Pentester Academy Walkthrough]({{ "files/walkthrough-1343.pdf" | relative_url}})
 
 Let us take an example
 ```
@@ -33,8 +29,8 @@ $ cat /etc/shadow
 cat: /etc/shadow: Permission denied
 ```
 
-## All about tar
-### Flags / Options
+# All about `tar`
+## Flags / Options
 In order to create a .tar file we can use following flags :
 ```
 -c, --create : create a new archive
@@ -44,7 +40,7 @@ In order to create a .tar file we can use following flags :
 -v, --verbose : verbosely list files processed
 -z, --gzip :filter the archive through gzip
 ``` 
-### Tar & zip
+## Tar & zip
 Note : `-f` flag has to be used in the end, immediately preceding the destination `filename`.
 
 ```
@@ -58,7 +54,7 @@ $ tar -cvzf ~/shadow.tar.gz shadow
 $ ls 
 shadow.tar.gz
 ```
-### Untar
+## Untar
 
 In order to extract the `.tar` file we need to use `-x`
 ```
@@ -68,7 +64,7 @@ shadow
 ```
 Now we can read the contents of the file by using `cat shadow`. It will enable us to extract the hashes of the root user password. 
 
-## Dashed filename
+# `-` in filename
 Refs :
 * <https://overthewire.org/wargames/bandit/bandit2.html>
 * <https://dynamicparallax.wordpress.com/2015/09/22/bandit-level-1-to-level-2/>
@@ -90,7 +86,7 @@ Hello World
 
 The other problem is that Linux command options usually start with a dash ( - ). If you try to type that filename on a command line, the command might think you’re trying to type a command option.
 
-## Double Dash Tar
+# `--` and `tar`
 Let us create few files for archiving and a bash script for printing `Hello World`.
 
 ```
@@ -148,3 +144,10 @@ $ tar -tvf myfiles.tar
 -rwxrwxrwx student/student  81 2020-04-15 20:39 first.sh
 ```
 Here, we can see that the files starting with `--` are not included into the `.tar` file.
+
+# `setuid`
+
+Refs :
+* <https://linuxconfig.org/how-to-use-special-permissions-the-setuid-setgid-and-sticky-bits>
+* [Pentester Academy Walkthrough]({{ "files/walkthrough-73.pdf" | relative_url}})
+

@@ -94,9 +94,9 @@ defaults:
 
 # Site Author
 author:
-  name:
+  name: Jai The Seeker
   picture:
-  email:
+  email: karma.jaimandeep@gmail.com
   twitter:
   links:
     - title:
@@ -108,3 +108,5 @@ footer_links:
   - title: Feed
     url: atom.xml
     icon: fas fa-rss-square
+
+copyright: "@ This site is maintained by jai-the-seeker."
