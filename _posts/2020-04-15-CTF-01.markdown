@@ -20,7 +20,7 @@ Let us take an example
 student@localhost:~$ getcap -r / 2>/dev/null 
 /bin/tar = cap_dac_read_search+ep
 ```
-Because we are running this on all files of the system, there might be some files on which the current user won't have access. And, trying to access those will throw an error. So,  `2>/dev/null` is to redirect the errors to /dev/null instead of printing them on the console. It is not necessary to use, it is just a trick that most people use to avoid printing the errors.
+Because we are running `getcap` on all files of the system, there might be some files on which the current user won't have access. And, trying to access those will throw an error. So,  `2>/dev/null` is to redirect the errors to /dev/null instead of printing them on the console. It is not necessary to use, it is just a trick that most people use to avoid printing the errors.
 
 Here, we see that `tar` program has the capability to read and search, while as a normal user we don't have the root read access, we can verify the same by trying to access the `/etc/shadow` file
 
@@ -87,6 +87,10 @@ Hello World
 The other problem is that Linux command options usually start with a dash ( - ). If you try to type that filename on a command line, the command might think you’re trying to type a command option.
 
 # `--` and `tar`
+
+Refs: 
+* [Pentester Academy Walkthrough]({{ "files/walkthrough-74.pdf" | relative_url}})
+
 Let us create few files for archiving and a bash script for printing `Hello World`.
 
 ```
@@ -150,4 +154,79 @@ Here, we can see that the files starting with `--` are not included into the `.t
 Refs :
 * <https://linuxconfig.org/how-to-use-special-permissions-the-setuid-setgid-and-sticky-bits>
 * [Pentester Academy Walkthrough]({{ "files/walkthrough-73.pdf" | relative_url}})
+
+When an executable is launched with `setuid` bit set, it does not run with the privileges of the user who launched it, but with that of the file owner instead. So, for example, if an executable has the `setuid` bit set on it, and it's owned by root, when launched by a normal user, it will run with root privileges.
+
+The `setuid`, `setgid`, and `sticky` bits are represented respectively by a value of 4, 2 and 1. So for example if we want to set the `setgid` bit on a directory we would execute:
+```
+$ chmod 2775 test
+```
+
+## The sticky bit
+The `sticky` bit works in a different way: while it has no effect on files, when used on a directory, all the files in said directory will be modifiable only by their owners. A typical case in which it is used, involves the `/tmp` directory. Typically this directory is writable by all users on the system, so to make impossible for one user to delete the files of another one, the sticky bit is set:
+```
+$ ls -ld /tmp
+drwxrwxrwt. 14 root root 300 Nov  1 16:48 /tmp
+```
+## The Pitfalls of `setuid`
+
+Let us create a scenario, as a root user you have created a program `awesome_app` which internally calls another program `messages` to print awesome quotes on the screen.
+
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+int main()
+{
+
+  pid_t child_pid;
+  int child_status;
+
+  char * argv_list[] = {"messages",NULL};
+  
+  child_pid = fork();
+  if(child_pid == 0) {
+    /* This is done by the child process. */
+
+    execv(argv_list[0], argv_list);
+    
+    /* If execv returns, it must have failed. */
+
+    printf("Unknown command\n");
+    exit(0);
+  }
+  else {
+     /* This is run by the parent.  Wait for the child
+        to terminate. */
+        wait(&child_status);
+       return child_status;
+  }
+
+  // Lets call my companion, how has the power to print exotic messages
+
+  return 0;
+}
+```
+The code for `messages` program is as follows :
+```c
+#include<stdio.h>
+
+int main() {
+  printf("If you want to be average, do what others do. If you want to be awesome, do what no one does.\n");
+  return 0;
+}
+```
+Now as a `root` user you compile both the programs, the state is :
+```
+# ls -la
+total 32
+-rwxr-xr-x 1 root    root    8528 Apr 16 15:18 awesome_app
+---x------ 1 root    root    8304 Apr 16 15:18 messages
+```
+Now, you want to share this app with another user on this computer. As, a normal user,he will not be able to run the program, in order to overcome the problem, you set the `setuid` bit as on. Now, he is able to run the program, but can also gain access to root shell by replacing `messages` program with `/bin/bash` program. This will give him access to root shell.
+
+
 
