@@ -15,6 +15,8 @@ Refs:
 * <https://www.andreasch.com/2018/01/13/capabilities/>
 * [Pentester Academy Walkthrough]({{ "files/walkthrough-1343.pdf" | relative_url}})
 
+The files and directories on the Linux system have permission for the owner, group and others. Depending upon the file/directory permission, the specific user/group can access it. But if a binary has CAP_DAC_READ_SEARCH capability, the permission checks are bypassed, allowing the binary to read any file present in any directory irrespective of the file/directory permission.
+
 Let us take an example
 ```
 student@localhost:~$ getcap -r / 2>/dev/null 
@@ -86,7 +88,8 @@ Hello World
 
 The other problem is that Linux command options usually start with a dash ( - ). If you try to type that filename on a command line, the command might think you’re trying to type a command option.
 
-# `--` and `tar`
+# Wildcard gone Wild
+## `--` and `tar`
 
 Refs: 
 * [Pentester Academy Walkthrough]({{ "files/walkthrough-74.pdf" | relative_url}})
@@ -155,6 +158,7 @@ Refs :
 * <https://linuxconfig.org/how-to-use-special-permissions-the-setuid-setgid-and-sticky-bits>
 * [Pentester Academy Walkthrough]({{ "files/walkthrough-73.pdf" | relative_url}})
 
+## Introduction
 When an executable is launched with `setuid` bit set, it does not run with the privileges of the user who launched it, but with that of the file owner instead. So, for example, if an executable has the `setuid` bit set on it, and it's owned by root, when launched by a normal user, it will run with root privileges.
 
 The `setuid`, `setgid`, and `sticky` bits are represented respectively by a value of 4, 2 and 1. So for example if we want to set the `setgid` bit on a directory we would execute:
