@@ -1,0 +1,90 @@
+---
+layout: post
+title:  "WiFi"
+date:   2020-04-21 13:20:58 +0530
+categories : [WiFi exploitation]
+tags: [WiFi exploitation]
+---
+
+{% include toc %}
+
+# Honeypot Access Point
+
+## `hostapd` - WEP
+
+Refs:
+* <https://wiki.gentoo.org/wiki/Hostapd>
+* <http://w1.fi/hostapd/>
+* [Pentester Academy Walkthrough]({{ "files/walkthrough-1258.pdf" | relative_url}})
+
+Let us first scan the network to know what the clients are probing
+
+```
+# airodump-ng wlan0
+
+CH 13 ][ Elapsed: 18 s ][ 2020-04-21 08:44
+
+ BSSID              PWR  Beacons    #Data, #/s  CH   MB   ENC CIPHER  AUTH ESSID
+
+
+ BSSID              STATION            PWR   Rate    Lost    Frames  Notes  Probes
+
+ (not associated)   02:00:00:00:05:00  -29    0 - 1      0        6         hostel-A
+ (not associated)   02:00:00:00:02:00  -49    0 - 1      0        6         Protect_Forest
+ (not associated)   02:00:00:00:03:00  -49    0 - 1      0        6         Free-WiFi
+ (not associated)   02:00:00:00:04:00  -49    0 - 1     32       10         Coffee-Shop-WiFi
+```
+
+`honeypot.conf`
+```console
+# SSID-1
+interface=wlan0
+
+# SSID-1
+#bss=virtual-wlan1
+ssid=Free-WiFi
+auth_algs=1
+wep_default_key=0
+wep_key0="54321"
+
+# SSID-2
+# the name of the new interface hostapd will create to handle this Access Point
+bss=virtual-wlan2
+ssid=Coffee-Shop-WiFi
+auth_algs=1
+wep_default_key=1
+wep_key1="54321"
+
+# SSID-3
+bss=virtual-wlan3
+ssid=hostel-A
+auth_algs=1
+wep_default_key=2
+wep_key2="54321"
+
+# SSID-4
+bss=virtual-wlan4
+ssid=Protect_Forest
+auth_algs=1
+wep_default_key=3
+wep_key3="54321"
+```
+
+```console
+# hostapd honeypot.conf
+Configuration file: honeypot.conf
+ACS: Automatic channel selection started, this may take a bit
+wlan0: interface state UNINITIALIZED->ACS
+wlan0: ACS-STARTED
+wlan0: ACS-COMPLETED freq=2412 channel=1
+Using interface wlan0 with hwaddr 02:00:00:00:00:00 and ssid "Free-WiFi"
+Using interface virtual-wlan2 with hwaddr 02:00:00:00:00:01 and ssid "Coffee-Shop-WiFi"
+Using interface virtual-wlan3 with hwaddr 02:00:00:00:00:02 and ssid "hostel-A"
+Using interface virtual-wlan4 with hwaddr 02:00:00:00:00:03 and ssid "Protect_Forest"
+wlan0: interface state ACS->ENABLED
+wlan0: AP-ENABLED
+virtual-wlan3: STA 02:00:00:00:05:00 IEEE 802.11: authenticated
+virtual-wlan3: STA 02:00:00:00:05:00 IEEE 802.11: associated (aid 1)
+virtual-wlan3: AP-STA-CONNECTED 02:00:00:00:05:00
+virtual-wlan3: STA 02:00:00:00:05:00 RADIUS: starting accounting session C1864E29FC4BC7D3
+```
