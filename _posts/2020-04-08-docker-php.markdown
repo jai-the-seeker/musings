@@ -1,12 +1,13 @@
 ---
 layout: post
-title:  "Chapter 01 : Setting up Infrastructure"
+title:  "Docker Infrastructure for Attacker Victim PHP-MySql Lab"
 date:   2020-04-08 23:20:58 +0530
-categories : [web exploitation]
-tags: [docker, web exploitation, infrastructure]
+categories : [docker]
+tags: [docker, web exploitation, Php, MySql, infrastructure]
 ---
 
-## After Fresh Installation
+{% include toc %}
+# After Fresh Installation
 Once we have installed all the CE-edition of docker and docker-compose from the docker website, we have following with us:
 {% highlight console %}
 {% endhighlight %}
@@ -24,10 +25,10 @@ efc1e1ca6409        bridge              bridge              local
 94d2f826785d        none                null                local
 {% endhighlight %}
 
-## Creating Dockerfile and Docker-Compose.yml
+# Creating Dockerfile and Docker-Compose.yml
 The Dockerfile caters for `pdo_mysql` extensions. The Dockerfile used in project is [here](https://github.com/jai-the-seeker/web-security/blob/master/infrastructure/app-machine/php/Dockerfile) 
 
-After running the `docker-compose up` command, the sate of our docker conatiners, networks is as follows:
+After running the `docker-compose up` command, the sate of our docker containers, networks is as follows:
 
 {% highlight console %}
 {% raw %}$ docker container ls --format "{{.ID}}: {{.Names}}: {{.Ports}}" {% endraw %}

@@ -1,13 +1,15 @@
 ---
 layout: post
-title:  "PowerShell : Chapter 01"
+title:  "PowerShell"
 date:   2020-04-03 23:20:58 +0530
-categories : powershell
-tags: powershell
+categories : [powershell]
+tags: [powershell]
 ---
 
-## Important Commands
-{% highlight console %}
+{% include toc %}
+
+# Important Commands
+```
 PS C:\> Get-Help *process
 
 Name                              Category  Synopsis
@@ -17,7 +19,7 @@ Stop-Process                      Cmdlet    Stops one or more running processes.
 Wait-Process                      Cmdlet    Waits for the processes to be stopped before accepting more input.
 Debug-Process                     Cmdlet    Debugs one or more processes running on the local computer.
 Start-Process                     Cmdlet    Starts one or more processes on the local computer.
-{% endhighlight %}
+```
 
 If we use cmdlet `Get-Process`, it lists out the running processes, however we can achieve the same result by using `ps` command. This is achieved by something called as `alias`. Powershell defines a number of `alias` for the comdlets. The list of corresponding `alias` and cmdlet can be viewed as follows :
  
