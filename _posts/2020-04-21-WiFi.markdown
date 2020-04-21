@@ -17,7 +17,7 @@ Refs:
 * <http://w1.fi/hostapd/>
 * [Pentester Academy Walkthrough]({{ "files/walkthrough-1258.pdf" | relative_url}})
 
-Let us first scan the network to know what the clients are probing
+Let us first scan the network to know which clients are probing for which all networks
 
 ```
 # airodump-ng wlan0
@@ -40,10 +40,7 @@ CH 13 ][ Elapsed: 18 s ][ 2020-04-21 08:44
 # SSID-1
 interface=wlan0
 
-# SSID-1
-#bss=virtual-wlan1
 ssid=Free-WiFi
-auth_algs=1
 wep_default_key=0
 wep_key0="54321"
 
@@ -51,21 +48,18 @@ wep_key0="54321"
 # the name of the new interface hostapd will create to handle this Access Point
 bss=virtual-wlan2
 ssid=Coffee-Shop-WiFi
-auth_algs=1
 wep_default_key=1
 wep_key1="54321"
 
 # SSID-3
 bss=virtual-wlan3
 ssid=hostel-A
-auth_algs=1
 wep_default_key=2
 wep_key2="54321"
 
 # SSID-4
 bss=virtual-wlan4
 ssid=Protect_Forest
-auth_algs=1
 wep_default_key=3
 wep_key3="54321"
 ```
